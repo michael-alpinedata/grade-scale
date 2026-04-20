@@ -114,6 +114,12 @@ resource "github_actions_secret" "swa_token" {
   secret_name     = "AZURE_SWA_TOKEN"
   plaintext_value = module.frontend.api_key
 }
+ 
+resource "github_actions_secret" "api_url" {
+  repository      = "grade-scale"
+  secret_name     = "VITE_API_BASE_URL"
+  plaintext_value = "https://${module.api.url}"
+}
 
 
 
