@@ -48,7 +48,7 @@ C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer
 ### 2. Configuration & Lancement
 1. **Installation** :
    ```bash
-   npm install && cd frontend && npm install && cd ..
+   npm ci && cd frontend && npm ci && cd ..
    ```
 2. **Environnement** :
    `cp .env.example .env` (Renseignez votre `GROQ_API_KEY`).
@@ -72,7 +72,7 @@ Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fich
 
 *   **Azure CLI** & **Terraform** (>= 1.5.0) installés.
 *   **`AZURE_DB_PASSWORD`** : Définissez ici le mot de passe que vous souhaitez attribuer à l'instance PostgreSQL managée sur Azure (Terraform l'utilisera pour la création).
-*   **`GITHUB_PAT`** : Un *Personal Access Token* GitHub (scopes `write:packages`, `read:packages`). Il permet de publier vos images sur la **GitHub Container Registry (GHCR)** et autorise Azure à les "puller".
+*   **`GITHUB_PAT`** : Un *Personal Access Token* GitHub (scopes `write:packages`, `read:packages`, **`repo`**). Le scope `repo` est indispensable pour que Terraform puisse automatiser l'injection du token SWA dans vos secrets GitHub Actions.
 *   **`GROQ_API_KEY`** : Votre clé pour l'inférence IA.
 
 ### 1. Initialisation du Remote State
@@ -109,10 +109,13 @@ L'infrastructure utilise Terraform pour provisionner les services Azure (Postgre
 # Initialisation
 make infra-init-dev
 
+# Injection du token GH pour l'automatisation des secrets (Senior Style)
+export TF_VAR_github_pat=$(gh auth token)
+
 # Déploiement
 make infra-apply-dev
 ```
-*Note : Le déploiement utilise une identité managée (User-Assigned) pour un accès sécurisé et immédiat au Key Vault.*
+*Note : Grâce au provider GitHub, Terraform injectera automatiquement le jeton `AZURE_SWA_TOKEN` dans votre repo GitHub.*
 
 ### 4️⃣ Finalisation du Déploiement
 Une fois l'infrastructure prête, déployez le frontend et initialisez la base de données :
