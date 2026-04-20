@@ -5,7 +5,8 @@ resource "azurerm_container_app" "main" {
   revision_mode                = "Single"
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [var.identity_id]
   }
 
   template {
@@ -37,19 +38,19 @@ resource "azurerm_container_app" "main" {
   secret {
     name                = "database-url"
     key_vault_secret_id = var.database_url_secret_id
-    identity            = "System"
+    identity            = var.identity_id
   }
 
   secret {
     name                = "groq-api-key"
     key_vault_secret_id = var.groq_api_key_secret_id
-    identity            = "System"
+    identity            = var.identity_id
   }
 
   secret {
     name                = "github-pat"
     key_vault_secret_id = var.github_pat_secret_id
-    identity            = "System"
+    identity            = var.identity_id
   }
 
   registry {

@@ -14,7 +14,13 @@ variable "database_url_secret_id" {
   type      = string
 }
 variable "groq_api_key_secret_id" {
-  type      = string
+  description = "The ID of the Key Vault secret for the Groq API key"
+  type        = string
+}
+
+variable "identity_id" {
+  description = "The ID of the user assigned identity"
+  type        = string
 }
 variable "github_username" {
   type      = string
