@@ -4,6 +4,11 @@ resource "azurerm_resource_group" "dev" {
 }
 
 data "azurerm_client_config" "current" {}
+ 
+provider "github" {
+  token = var.github_pat
+  owner = var.github_username
+}
 
 module "security" {
   source              = "../../modules/key_vault"
@@ -103,5 +108,12 @@ resource "random_string" "suffix" {
   special = false
   upper   = false
 }
+ 
+resource "github_actions_secret" "swa_token" {
+  repository      = "grade-scale"
+  secret_name     = "AZURE_SWA_TOKEN"
+  plaintext_value = module.frontend.api_key
+}
+
 
 
