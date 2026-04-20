@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Installation des dépendances
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Génération Prisma (besoin du schéma)
 COPY prisma ./prisma/

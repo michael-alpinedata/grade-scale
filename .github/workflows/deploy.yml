@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Vitest
         run: npm run test
@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
-        run: cd frontend && npm install
+        run: cd frontend && npm ci
 
       - name: Run Frontend Tests
         run: cd frontend && npm run test
@@ -82,28 +82,36 @@ jobs:
       - name: Rollout Azure Container App
         id: rollout
         run: |
-          # On récupère l'URL de la future révision
-          URL=$(az containerapp update \
+          echo "🚀 Mise à jour de la Container App..."
+          # On retire --no-wait pour s'assurer que la commande attend la création de la révision
+          az containerapp update \
             --name aca-gradescale-api-dev \
             --resource-group rg-gradescale-dev \
             --image ghcr.io/${{ env.REPO_OWNER }}/grade-scale:latest \
-            --revision-suffix rev${{ github.run_number }} \
-            --no-wait \
+            --revision-suffix rev${{ github.run_number }}
+          
+          echo "🔍 Récupération de l'URL de la nouvelle révision..."
+          # On récupère le FQDN de la toute dernière révision
+          URL=$(az containerapp show \
+            --name aca-gradescale-api-dev \
+            --resource-group rg-gradescale-dev \
             --query "properties.latestRevisionFqdn" -o tsv)
+          
+          if [ -z "$URL" ]; then
+            echo "❌ Erreur : Impossible de récupérer le FQDN de la révision"
+            exit 1
+          fi
           
           echo "NEW_REVISION_URL=https://$URL" >> $GITHUB_ENV
 
       - name: Targeted Smoke Test
         run: |
-          echo "Attente du provisioning et réveil de la révision..."
+          echo "🩺 Smoke Test sur : ${{ env.NEW_REVISION_URL }}/health"
           
-          # 1. On définit l'URL (récupérée à l'étape précédente)
-          # 2. On tente un curl toutes les 5 secondes
-          # 3. 'timeout 300s' laisse 5 minutes max (généreux pour un premier Pull d'image)
-          
+          # On attend que la révision soit provisionnée et réponde
           timeout 300s bash -c '
-            until curl -sSf ${{ env.NEW_REVISION_URL }}/health; do
-              echo "Révision en cours de démarrage... (Retry dans 5s)"
+            until curl -sSf "${{ env.NEW_REVISION_URL }}/health"; do
+              echo "⏳ Révision en cours de démarrage... (Retry dans 5s)"
               sleep 5
             done
           '
@@ -125,4 +133,4 @@ jobs:
           action: "upload"
           app_location: "/frontend"
           output_location: "dist"
-          app_build_command: "npm install && npm run build"
+          app_build_command: "npm ci && npm run build"
