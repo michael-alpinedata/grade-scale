@@ -53,7 +53,7 @@ GH_PAT   = $(shell grep GITHUB_PAT .env | cut -d '=' -f2- | tr -d '\" ' )
 DB_PASS  = $(shell grep AZURE_DB_PASSWORD .env | cut -d '=' -f2- | tr -d '\" ' )
 
 # --- Database Management (Azure Dev) ---
-AZ_DB_HOST = pg-gradescale-dev-tim3ir.postgres.database.azure.com
+AZ_DB_HOST = $(shell cd infra/environments/dev && terraform output -raw database_host)
 AZ_DB_USER = psqladmin
 AZ_DB_NAME = gradescale_dev
 AZ_DB_URL  = 'postgresql://$(AZ_DB_USER):$(DB_PASS)@$(AZ_DB_HOST):5432/$(AZ_DB_NAME)?sslmode=require'
@@ -109,7 +109,8 @@ nuke: infra-destroy-dev infra-destroy-prod clean
 # --- FRONTEND DEPLOYMENT ---
 front-push-dev:
 	@echo "🏗️ Building Frontend..."
-	cd frontend && npm install && npm run build
+	@API_URL=$$(cd infra/environments/dev && terraform output -raw container_app_url); \
+	cd frontend && npm install && VITE_API_BASE_URL=https://$$API_URL npm run build
 	@echo "🚀 Deploying to Azure Static Web App..."
 	@TOKEN=$$(cd infra/environments/dev && terraform output -raw frontend_deployment_token); \
-	cd frontend && npx @azure/static-web-apps-cli deploy ./dist --api-token $$TOKEN --env production
+	cd frontend && npx @azure/static-web-apps-cli deploy ./dist --deployment-token $$TOKEN --env production
