@@ -33,162 +33,175 @@ Le projet est conçu avec une double approche : **Simplicité locale** et **Scal
 *   **Logic (Local)** : Node.js, TypeScript, Fastify, Prisma, PostgreSQL.
 *   **Industrial (Cloud)** : Docker (Multi-stage), Terraform (IaC), Azure Container Apps, Azure Static Web Apps, Vitest (QA).
 *   **Automation (CI/CD)** : GitHub Actions (Pipeline complet de test et déploiement).
-*   **Intelligence** : Inférence Groq LPU (Modèles Llama 3.3 70B) pour une latence minimale.
+*   **Intelligence** : Inférence Groq LPU (Modèles Llama 3.3 70B).
 
 ---
 
-## 🚀 Installation & Développement Local
+## 🚀 Mode 1 : Développement Local (Fast Dev)
 
-C'est la méthode recommandée pour contribuer ou tester le moteur d'évaluation rapidement.
+C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer au code rapidement.
 
-### 1. Prérequis Système
-*   **Node.js (LTS)** : Recommandé via **NVM**
-    ```bash
-    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
-    source ~/.bashrc
-    nvm install --lts
-    ```
-*   **Docker** : Installé (pour la base de données PostgreSQL locale).
+### 1. Prérequis
+*   **Node.js (LTS)** & **Docker** (pour le Postgres local).
+*   **Groq API Key** (Gratuit sur [console.groq.com](https://console.groq.com/)).
 
-### 2. Configuration Rapide
-1. **Clone & Install** :
+### 2. Configuration & Lancement
+1. **Installation** :
    ```bash
-   git clone https://github.com/MichaelG-create/grade-scale.git
-   cd grade-scale
-   npm install          # Installation du Backend
-   cd frontend && npm install  # Installation du Frontend
-   cd ..
+   npm install && cd frontend && npm install && cd ..
    ```
 2. **Environnement** :
-   `cp .env.example .env` (Remplissez votre `GROQ_API_KEY`).
-3. **Database Locale** :
+   `cp .env.example .env` (Renseignez votre `GROQ_API_KEY`).
+3. **Base de données** :
    ```bash
    docker-compose up -d
-   npx prisma migrate dev
-   npm run seed
+   npx prisma migrate dev && npm run seed
    ```
-4. **Lancement** :
-   *   **Backend** : `npm run dev` (port 3000)
-   *   **Frontend** : `cd frontend && npm run dev` (port 5173)
+4. **Run** :
+   *   Backend : `npm run dev` (Port 3000)
+   *   Frontend : `cd frontend && npm run dev` (Port 5173)
+
+![Workflow Développement Local](./docs/diagrams/diagram_local.png)
 
 ---
 
-## 🏗️ Workflow & Infrastructure
+## ☁️ Mode 2 : Déploiement Cloud (Azure Industrial)
 
-### 🛠️ Commandes Makefile (Industrial Automation)
-Le `Makefile` centralise les commandes complexes pour la gestion du cycle de vie :
-*   `make test` : Lance Vitest (Unitaires + API Integration).
-*   `make api-push` : Construit et pousse l'image Docker sur le registre **GHCR**.
-*   `make db-migrate-dev` : Applique les migrations Prisma sur la base **Azure PostgreSQL**.
-*   `make infra-apply-dev` : Déploie l'infrastructure complète via **Terraform**.
-*   `make nuke` : **Destruction complète** de l'infrastructure et nettoyage des artefacts locaux (pour une réinstallation propre).
+### 0. Prérequis & Configuration `.env`
+Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fichier `.env` à la racine :
 
-### 🤖 CI/CD : GitHub Actions
-Le pipeline `.github/workflows/deploy.yml` automatise la chaîne de valeur :
-1.  **Validation** : Tests unitaires (Vitest) backend et frontend + Build check.
-2.  **Containerisation** : Build de l'image Docker multi-stage et push sur GHCR.
-3.  **Deploy Backend** : Mise à jour de l'**Azure Container App** avec Smoke Testing ciblé sur la nouvelle révision.
-4.  **Deploy Frontend** : Déploiement atomique sur **Azure Static Web Apps**.
+*   **Azure CLI** & **Terraform** (>= 1.5.0) installés.
+*   **`AZURE_DB_PASSWORD`** : Définissez ici le mot de passe que vous souhaitez attribuer à l'instance PostgreSQL managée sur Azure (Terraform l'utilisera pour la création).
+*   **`GITHUB_PAT`** : Un *Personal Access Token* GitHub (scopes `write:packages`, `read:packages`). Il permet de publier vos images sur la **GitHub Container Registry (GHCR)** et autorise Azure à les "puller".
+*   **`GROQ_API_KEY`** : Votre clé pour l'inférence IA.
 
-### ☁️ Déploiement Azure (Full Cloud)
-L'infrastructure est entièrement pilotée par le code (IaC) via **Terraform**. Elle comprend Azure Container Apps, Postgres Flexible Server, Key Vault et Static Web Apps.
+### 1. Initialisation du Remote State
+Pour stocker l'état de l'infrastructure de manière sécurisée et partagée :
+```bash
+chmod +x infra/backend_setup/init_backend.sh
+./infra/backend_setup/init_backend.sh
+```
 
-👉 **[Consulter le Guide de Déploiement Azure](./docs/DEPLOY_AZURE.md)**
+### 🚀 Déploiement Rapide (Quick Start)
 
----
+### 1️⃣ Configuration Initiale
+1. Clonez le repository.
+2. Créez votre fichier `.env` à partir du `.env.example`.
+3. Configurez vos variables (Groq API Key, GitHub PAT, etc.).
 
-## 📖 Guide d'Utilisation de l'Interface
-
-Une fois le backend et le frontend lancés, ouvrez l'URL `http://localhost:5173`.
-
+### 2️⃣ Publication de l'Image Docker
 > [!IMPORTANT]
-> **Démonstration en ligne** : Avant de commencer à tester l'évaluation des copies sur le site Vercel, **[cliquez ici pour réveiller l'API Backend](https://grade-scale.onrender.com/health)**. 
-> Comme c'est une version gratuite sur Render, le premier chargement peut prendre ~1 minute. Une fois que vous voyez `{"status":"ok"}`, vous pouvez utiliser le frontend normalement.
+> Cette étape doit être effectuée **avant** le déploiement de l'infrastructure pour éviter les erreurs de démarrage des conteneurs.
 
-### 1. Préparation de l'Évaluation
-*   **Sélection** : Choisissez une question dans la liste (ex: *"Le mouvement d'un palet"*).
-*   **Saisie** : Tapez la réponse d'un élève.
-*   **Astuce (Test Rapide)** : Utilisez les **Pillules d'exemples** sous le champ de saisie. Elles injectent des réponses types pour tester la réaction de l'IA (correcte, erreur d'unité, etc.).
+```bash
+# Login sur GitHub Container Registry
+export GITHUB_PAT=votre_pat
+echo $GITHUB_PAT | docker login ghcr.io -u votre_username --password-stdin
 
-### 2. Analyse des Résultats (IA Groq)
-Après avoir cliqué sur évaluer, l'intelligence artificielle de **Groq** analyse la copie en une fraction de seconde pour afficher :
-*   **Note Finale** : Calculée dynamiquement sur le barème de la rubrique.
-*   **Feedback Global** : Un commentaire qui résume la performance.
-*   **Méconceptions Détectées** : L'IA identifie les erreurs de raisonnement types (ex: *"Confusion entre masse et poids"*).
-*   **Détail par Critère** : Décomposition du barème avec justifications et conseils de remédiation (💡).
+# Build et Push de l'image API
+make api-push
+```
+
+### 3️⃣ Déploiement de l'Infrastructure (IaC)
+L'infrastructure utilise Terraform pour provisionner les services Azure (Postgres, Container Apps, Static Web Apps).
+
+```bash
+# Initialisation
+make infra-init-dev
+
+# Déploiement
+make infra-apply-dev
+```
+*Note : Le déploiement utilise une identité managée (User-Assigned) pour un accès sécurisé et immédiat au Key Vault.*
+
+### 4️⃣ Finalisation du Déploiement
+Une fois l'infrastructure prête, déployez le frontend et initialisez la base de données :
+1.  **Backend** (Container Apps) :
+    ```bash
+    make api-rollout-dev # Déclenche le rollout sur Azure
+    ```
+2.  **Frontend** (Static Web Apps) :
+    ```bash
+    make front-push-dev  # Build et déploiement via Azure SWA CLI
+    ```
+
+### 🔐 Sécurité & Secrets (Key Vault)
+Le projet applique les meilleures pratiques de sécurité Cloud-Native :
+*   **Zero Secret Leak** : Votre `GROQ_API_KEY` et la `DATABASE_URL` sont injectées automatiquement dans **Azure Key Vault** lors du déploiement Terraform.
+*   **Managed Identity** : Le Backend accède au Vault via une identité managée, éliminant le besoin de stocker des credentials dans le code ou les variables d'environnement.
+
+### 🤖 CI/CD Automatisé (GitHub Actions)
+Le pipeline `.github/workflows/deploy.yml` prend le relais après le premier déploiement :
+1.  **Validation** : Tests Vitest complets (Backend/Frontend).
+2.  **Continuous Deployment** : À chaque `push` on `master`, GitHub automatise le cycle Build -> Push -> Rollout -> Smoke Test.
 
 ---
 
-## 🏗️ Architecture Infrastructure (Azure)
+## 🛠️ Commandes Universelles (Makefile)
 
-Le dossier `infra/` contient tout le nécessaire pour déployer deux environnements isolés et scalables :
+Le `Makefile` est le point d'entrée unique pour toutes les opérations :
+*   `make test` : Suite complète de tests unitaires et d'intégration.
+*   `make nuke` : **Destruction propre** (Terraform destroy + nettoyage local).
+*   `make db-migrate-dev` : Applique les migrations Prisma sur la base Cloud.
+*   `make db-reset-dev` : Réinitialise et re-seed la base Azure Dev.
 
-### Schéma Technique
-```mermaid
-graph TD
-    subgraph "💻 ENVIRONNEMENT LOCAL"
-        LD[Local Dev Node] -->|Fastify| LDB[(Postgres Docker)]
-        LD -->|API Call| GROQ[Groq Cloud API]
-        FE_L[Vite Frontend] -->|localhost:3000| LD
-    end
+---
 
-    subgraph "☁️ ENVIRONNEMENT AZURE (CI/CD Managed)"
-        direction TB
-        ACA[Azure Container App - Backend]
-        APG[(Azure Postgres Flexible)]
-        AKV[Azure Key Vault - Secrets]
-        ACA -->|Storage| APG
-        AKV -->|Injected Secrets| ACA
-        FE_A[Azure Static Web App] -->|HTTPS| ACA
-    end
-```
+## 🏗️ Architecture System Design (Azure Cloud)
 
-### Flux de données (Evaluation)
-```mermaid
-sequenceDiagram
-    participant U as Utilisateur
-    participant F as Frontend (Vite)
-    participant B as Backend (Fastify)
-    participant D as Database (Prisma)
-    participant AI as Groq (Llama 3.3)
+Le système est conçu pour être **Scalable**, **Sécurisé** et **Observale**.
 
-    U->>F: Soumet une réponse élève
-    F->>B: POST /submissions
-    B->>D: Create Submission
-    B->>AI: Send Prompt (IA)
-    AI-->>B: Structured Response
-    B->>D: Update Evaluation
-    B-->>F: Return Summary
-```
+### Schéma d'Architecture Cible
+![Architecture Azure Industrialisée](./docs/diagrams/diagram_cloud.png)
 
-*   **Environnement Dev** : Configuration légère pour les tests rapides et la validation.
-*   **Environnement Prod** : Configuration optimisée pour la démonstration finale.
-*   **Remote State** : L'état de l'infrastructure est stocké de manière sécurisée dans un **Storage Account Azure**.
-*   **Compute** : Utilisation d'**Azure Container Apps** (Serverless).
+### Composants Clés & Rôles
+1.  **Azure Static Web Apps (SWA)** : Hébergement optimisé du frontend, avec certificat SSL et CDN intégrés.
+2.  **Azure Container Apps (ACA)** : Orchestration serverless de l'API Node.js. Gère le scaling et les révisions de déploiement (Blue/Green possible).
+3.  **Managed Identity (MSI)** : Sécurité "Zero Secret" — le backend s'authentifie au Key Vault sans mot de passe.
+4.  **Azure Key Vault** : Coffre-fort numérique centralisant les clés d'API (Groq) et les chaînes de connexion.
+5.  **PostgreSQL Flexible Server** : Base de données managée garantissant la persistance et l'intégrité des données pédagogiques.
+6.  **Log Analytics Workspace** : Centralisation des logs pour le monitoring en temps réel et le debugging.
+
+### Flux de Données (Processus d'Évaluation)
+1.  **Soumission** : L'utilisateur envoie une copie d'élève via le Frontend.
+2.  **Orchestration** : L'ACA reçoit la requête, valide le schéma (Zod) et récupère les secrets dans le Key Vault via MSI.
+3.  **Intelligence** : L'ACA envoie la copie et le barème à **Groq** pour une analyse sémantique ultra-rapide.
+4.  **Persistance** : Le résultat (note, critères, méconceptions) est stocké dans **PostgreSQL** via Prisma.
+5.  **Retour** : Le frontend affiche le feedback pédagogique détaillé.
+
+![Flux d'évaluation IA](./docs/diagrams/diagram_evaluation_flow.png)
 
 ---
 
 ## 🌐 Déploiement & Live Demo
 
 Le projet est désormais industrialisé sur Azure :
-*   **🚀 Interface Frontend** : Déployée sur **Azure Static Web Apps**.
-*   **⚙️ API Backend** : Hébergée sur **Azure Container Apps**.
+*   **🚀 Interface Frontend** : [https://grade-scale.azurestaticapps.net/](https://grade-scale.azurestaticapps.net/)
+*   **⚙️ API Backend** : [https://aca-gradescale-api.azurecontainerapps.io/](https://aca-gradescale-api.azurecontainerapps.io/)
 
 > [!NOTE]
 > Les déploiements sont entièrement automatisés. Chaque `push` sur la branche `master` déclenche une mise à jour transparente de l'application après validation des tests.
 
 ---
 
-## 📋 Roadmap & Industrialisation
+## 📋 Roadmap
+- [x] **Infrastructure** : 100% IaC avec Terraform sur Azure.
+- [x] **CI/CD** : Pipeline GitHub Actions (Test/Build/Deploy/Smoke).
+- [x] **Backend** : Migration de Render vers Azure Container Apps.
+- [x] **Database** : Migration de Neon vers Azure Postgres Flexible.
+- [x] **Frontend** : Migration de Vercel vers Azure Static Web Apps.
+- [ ] **Observabilité** : Dashboards Grafana/Azure Monitor avancés.
+- [ ] **Pédagogie** : Support Vision pour l'OCR des copies manuscrites.
 
-- [x] **IaC** : Automatisation complète du déploiement via Terraform sur Azure.
-- [x] **QA** : Mise en place d'une suite de tests (Unitaires & Intégration) avec Vitest.
-- [x] **Docker** : Image stable et sécurisée pour le cloud (Registry GHCR).
-- [x] **DevX** : Automatisation des tâches courantes via Makefile.
-- [x] **Cloud Migration** : Passage de Render (backend)/ Neon (db) / Vercel (frontend) vers une stack 100% Azure.
-- [x] **CI/CD** : Pipeline GitHub Actions complet (Build, Test, Deploy, Smoke Test).
-- [ ] **Observabilité** : Intégration de dashboards Azure Monitor pour le suivi des performances IA.
-- [ ] **Pédagogie** : Support des réponses sous forme d'images (OCR + Vision API).
+## 🛠️ Dépannage (Troubleshooting)
+
+### Erreur `409 Conflict (ContainerAppOperationInProgress)`
+**Cause** : Une opération précédente sur l'Azure Container App est encore en cours de traitement par Azure.
+**Solution** : Attendez 2-3 minutes que l'opération se termine côté Azure, puis relancez `make infra-apply-dev`.
+
+### Erreur `resource already exists` (Prisma ou Terraform)
+**Cause** : Une interruption du processus a laissé des ressources créées mais non enregistrées dans le fichier d'état (`state`).
+**Solution (Terraform)** : Utilisez `terraform import` pour rattacher la ressource existante à votre state (voir les logs Terraform pour l'ID de la ressource).
 
 ---
 *Projet conçu avec rigueur par Michael GARCIA - Ingénieur & Enseignant.*
