@@ -14,6 +14,28 @@ module "security" {
   admin_object_id     = data.azurerm_client_config.current.object_id
 }
 
+resource "azurerm_user_assigned_identity" "api" {
+  name                = "id-gradescale-api-dev"
+  resource_group_name = azurerm_resource_group.dev.name
+  location            = azurerm_resource_group.dev.location
+}
+
+resource "azurerm_key_vault_access_policy" "admin" {
+  key_vault_id = module.security.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  secret_permissions = ["Get", "List", "Set", "Delete", "Purge", "Recover"]
+}
+
+resource "azurerm_key_vault_access_policy" "api" {
+  key_vault_id = module.security.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_user_assigned_identity.api.principal_id
+
+  secret_permissions = ["Get", "List"]
+}
+
 resource "azurerm_key_vault_secret" "database_url" {
   name         = "database-url"
   value        = "postgresql://${module.database.admin_username}:${var.db_password}@${module.database.server_fqdn}:5432/${module.database.db_name}?sslmode=require"
@@ -34,6 +56,8 @@ resource "azurerm_key_vault_secret" "github_pat" {
   value        = var.github_pat
   key_vault_id = module.security.id
 }
+
+
 
 module "database" {
   source              = "../../modules/postgres"
@@ -64,14 +88,7 @@ module "api" {
   github_pat_secret_id   = azurerm_key_vault_secret.github_pat.versionless_id
   database_url_secret_id = azurerm_key_vault_secret.database_url.versionless_id
   groq_api_key_secret_id = azurerm_key_vault_secret.groq_api_key.versionless_id
-}
-
-resource "azurerm_key_vault_access_policy" "api" {
-  key_vault_id = module.security.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = module.api.principal_id
-
-  secret_permissions = ["Get", "List"]
+  identity_id            = azurerm_user_assigned_identity.api.id
 }
 
 module "frontend" {
@@ -87,11 +104,4 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
-output "frontend_url" {
-  value = module.frontend.default_host_name
-}
 
-output "frontend_deployment_token" {
-  value     = module.frontend.api_key
-  sensitive = true
-}
