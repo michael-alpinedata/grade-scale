@@ -164,8 +164,9 @@ if (require.main === module || !process.env.VITEST) {
   const start = async () => {
     try {
       await server.register(cors, { 
-        origin: true, 
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        origin: '*', 
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
       });
       
       const port = Number(process.env.PORT) || 3000;

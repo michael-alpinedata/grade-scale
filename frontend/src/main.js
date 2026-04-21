@@ -1,6 +1,7 @@
 import { EXAMPLES_DATA } from './examples.js';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+console.log("🔧 API_BASE initialized as:", API_BASE);
 
 const submissionSection = document.getElementById('submission-section');
 const loadingSection = document.getElementById('loading-section');
