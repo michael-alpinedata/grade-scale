@@ -46,20 +46,22 @@ resource "azurerm_key_vault_secret" "database_url" {
   value        = "postgresql://${module.database.admin_username}:${var.db_password}@${module.database.server_fqdn}:5432/${module.database.db_name}?sslmode=require"
   key_vault_id = module.security.id
   
-  # Ensure the secret is created after the DB is ready
-  depends_on = [module.database]
+  # Ensure the secret is created after the DB is ready AND while admin has permissions
+  depends_on = [module.database, azurerm_key_vault_access_policy.admin]
 }
 
 resource "azurerm_key_vault_secret" "groq_api_key" {
   name         = "groq-api-key"
   value        = var.groq_api_key
   key_vault_id = module.security.id
+  depends_on   = [azurerm_key_vault_access_policy.admin]
 }
 
 resource "azurerm_key_vault_secret" "github_pat" {
   name         = "github-pat"
   value        = var.github_pat
   key_vault_id = module.security.id
+  depends_on   = [azurerm_key_vault_access_policy.admin]
 }
 
 

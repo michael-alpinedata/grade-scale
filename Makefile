@@ -120,8 +120,12 @@ infra-destroy-prod:
 	@echo "🔥 Destroying Prod Infrastructure..."
 	@cd infra/environments/prod && $(TF_VARS) terraform destroy -auto-approve
 
-nuke: infra-destroy-dev infra-destroy-prod clean
-	@echo "☢️  ALL SYSTEMS DESTROYED. Ready for fresh install."
+nuke: clean
+	@echo "🔥 Brute-force destruction of Azure Resource Groups..."
+	-az group delete --name rg-gradescale-dev --yes --no-wait
+	-az group delete --name rg-gradescale-prod --yes --no-wait
+	-az group delete --name rg-gradescale-tfstate --yes --no-wait
+	@echo "☢️  AZURE RESOURCES DELETION TRIGGERED. Local artifacts cleaned. Ready for fresh install."
 
 # --- FRONTEND DEPLOYMENT ---
 front-push-dev:
