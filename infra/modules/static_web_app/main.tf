@@ -1,4 +1,4 @@
-resource "azurerm_static_site" "main" {
+resource "azurerm_static_web_app" "main" {
   name                = var.name
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -7,14 +7,14 @@ resource "azurerm_static_site" "main" {
 }
 
 output "id" {
-  value = azurerm_static_site.main.id
+  value = azurerm_static_web_app.main.id
 }
 
 output "api_key" {
-  value     = azurerm_static_site.main.api_key
+  value     = azurerm_static_web_app.main.api_key
   sensitive = true
 }
 
 output "default_host_name" {
-  value = azurerm_static_site.main.default_host_name
+  value = azurerm_static_web_app.main.default_host_name
 }
