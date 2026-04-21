@@ -41,7 +41,7 @@ Le projet est conçu avec une double approche : **Simplicité locale** et **Scal
 
 C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer au code rapidement.
 
-### 1. Prérequis
+### 0️⃣ Prérequis
 *   **Node.js (LTS)** : Recommandé via [nvm](https://github.com/nvm-sh/nvm)
     ```bash
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -51,7 +51,7 @@ C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer
 *   **Docker** (pour le Postgres local).
 *   **Groq API Key** (Gratuit sur [console.groq.com](https://console.groq.com/)).
 
-### 2. Configuration & Lancement
+### 1️⃣ Configuration & Lancement
 1. **Installation** :
    ```bash
    npm ci && cd frontend && npm ci && cd ..
@@ -73,7 +73,7 @@ C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer
 
 ## ☁️ Mode 2 : Déploiement Cloud (Azure Industrial)
 
-### 0. Prérequis & Configuration `.env`
+### 0️⃣ Prérequis & Configuration `.env`
 Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fichier `.env` à la racine :
 
 *   **Azure CLI** & **Terraform** (>= 1.5.0) installés.
@@ -90,13 +90,13 @@ Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fich
 2. Créez votre fichier `.env` à partir du `.env.example`.
 3. Configurez vos variables (`AZURE_DB_PASSWORD`, `GROQ_API_KEY`).
 
-### 2️⃣ Initialisation du Remote State
+### 1️⃣ Initialisation du Remote State
 Créez le stockage Azure pour l'état Terraform :
 ```bash
 make infra-setup-backend
 ```
 
-### 3️⃣ Publication de l'Image Docker (Initial)
+### 2️⃣ Publication de l'Image Docker (Initial)
 > [!IMPORTANT]
 > Cette étape doit être effectuée **avant** le déploiement de l'infrastructure pour éviter les erreurs de démarrage des conteneurs.
 
