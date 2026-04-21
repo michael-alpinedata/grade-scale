@@ -78,7 +78,12 @@ Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fich
 
 *   **Azure CLI** & **Terraform** (>= 1.5.0) installés.
 *   **`AZURE_DB_PASSWORD`** : Définissez ici le mot de passe que vous souhaitez attribuer à l'instance PostgreSQL managée sur Azure (Terraform l'utilisera pour la création).
-*   **`GITHUB_PAT`** : Un *Personal Access Token* GitHub (scopes `write:packages`, `read:packages`, **`repo`**). Le scope `repo` est indispensable pour que Terraform puisse automatiser l'injection du token SWA dans vos secrets GitHub Actions.
+*   **`GITHUB_PAT`** (Optionnel) : Un *Personal Access Token* GitHub.
+    *   **Si vous utilisez `gh`** : Pas besoin de le renseigner.
+    *   **Si vous préférez un PAT (Fine-grained)** : Les permissions suivantes sont requises :
+        *   **Repository permissions** : `Secrets` (Write), `Metadata` (Read).
+        *   **Account permissions** : `Packages` (Write).
+    *   **Si vous utilisez un PAT (Classic)** : Scopes `repo`, `write:packages`, `read:packages`.
 *   **`GROQ_API_KEY`** : Votre clé pour l'inférence IA.
 
 1. Clonez le repository.
