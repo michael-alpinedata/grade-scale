@@ -179,7 +179,7 @@ Le système est conçu pour être **Scalable**, **Sécurisé** et **Observale**.
 ## 🌐 Déploiement & Live Demo
 
 Le projet est désormais industrialisé sur Azure :
-*   **🚀 Interface Frontend** : [https://jolly-ocean-0f9f70c03.7.azurestaticapps.net/](https://jolly-ocean-0f9f70c03.7.azurestaticapps.net/)
+*   **🚀 Interface Frontend** : [https://agreeable-ground-061b10b03.7.azurestaticapps.net/](https://agreeable-ground-061b10b03.7.azurestaticapps.net/)
 *   **⚙️ API Backend** : [https://aca-gradescale-api-dev.kindstone-6c6a1c67.francecentral.azurecontainerapps.io/](https://aca-gradescale-api-dev.kindstone-6c6a1c67.francecentral.azurecontainerapps.io/)
 
 > [!NOTE]
