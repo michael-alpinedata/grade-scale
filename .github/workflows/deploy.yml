@@ -133,4 +133,6 @@ jobs:
           action: "upload"
           app_location: "frontend"
           output_location: "dist"
-          app_build_command: "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} npm ci && npm run build"
+          app_build_command: "npm ci && npm run build"
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
