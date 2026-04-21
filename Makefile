@@ -27,8 +27,8 @@ docker-build:
 	docker build -t grade-scale .
 
 docker-push:
-	docker tag grade-scale:latest ghcr.io/$(GH_USER)/grade-scale:latest
-	docker push ghcr.io/$(GH_USER)/grade-scale:latest
+	docker tag grade-scale:latest ghcr.io/$(GH_USER_LOWER)/grade-scale:latest
+	docker push ghcr.io/$(GH_USER_LOWER)/grade-scale:latest
 
 # Combined command for simplicity
 api-login:
@@ -38,10 +38,10 @@ api-login:
 api-push: api-login docker-build docker-push
 
 api-rollout-dev:
-	az containerapp update --name aca-gradescale-api-dev --resource-group rg-gradescale-dev --image ghcr.io/$(GH_USER)/grade-scale:latest --revision-suffix rev$$(date +%s)
+	az containerapp update --name aca-gradescale-api-dev --resource-group rg-gradescale-dev --image ghcr.io/$(GH_USER_LOWER)/grade-scale:latest --revision-suffix rev$$(date +%s)
 
 api-rollout-prod:
-	az containerapp update --name aca-gradescale-api-prod --resource-group rg-gradescale-prod --image ghcr.io/$(GH_USER)/grade-scale:latest --revision-suffix rev$$(date +%s)
+	az containerapp update --name aca-gradescale-api-prod --resource-group rg-gradescale-prod --image ghcr.io/$(GH_USER_LOWER)/grade-scale:latest --revision-suffix rev$$(date +%s)
 
 clean:
 	@echo "🧹 Cleaning local artifacts..."
@@ -57,6 +57,7 @@ GH_USER  := $(shell grep GITHUB_USERNAME .env 2>/dev/null | cut -d '=' -f2- | tr
 ifeq ($(GH_USER),)
   GH_USER := $(shell gh api user -q .login 2>/dev/null)
 endif
+GH_USER_LOWER := $(shell echo $(GH_USER) | tr '[:upper:]' '[:lower:]')
 
 GH_PAT   := $(shell grep GITHUB_PAT .env 2>/dev/null | cut -d '=' -f2- | tr -d '\" ' )
 ifeq ($(GH_PAT),)
@@ -99,14 +100,14 @@ infra-setup-backend:
 	@./infra/backend_setup/init_backend.sh
 
 infra-init-dev:
-	@cd infra/environments/dev && terraform init
+	@cd infra/environments/dev && terraform init -backend-config=backend.dev.conf
 
 infra-apply-dev:
 	@echo "Applying Dev Infrastructure..."
 	@cd infra/environments/dev && $(TF_VARS) terraform apply -auto-approve
 
 infra-init-prod:
-	@cd infra/environments/prod && terraform init
+	@cd infra/environments/prod && terraform init -backend-config=backend.prod.conf
 
 infra-apply-prod:
 	@echo "Applying Prod Infrastructure..."
