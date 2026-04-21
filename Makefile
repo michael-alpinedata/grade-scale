@@ -9,6 +9,7 @@ help:
 	@echo "  make api-push          - Build and push Docker image to GHCR"
 	@echo "  make api-rollout-dev   - Force update of the Dev container on Azure"
 	@echo "  make api-rollout-prod  - Force update of the Prod container on Azure"
+	@echo "  make infra-setup-backend - Create Azure Storage for Terraform state"
 	@echo "  make infra-apply-dev   - Apply Terraform changes to Dev"
 	@echo "  make infra-apply-prod  - Apply Terraform changes to Prod"
 	@echo "  make nuke              - DESTROY EVERYTHING (Infra + Local artifacts)"
@@ -30,7 +31,11 @@ docker-push:
 	docker push ghcr.io/$(GH_USER)/grade-scale:latest
 
 # Combined command for simplicity
-api-push: docker-build docker-push
+api-login:
+	@echo "Logging into GHCR..."
+	@echo $(GH_PAT) | docker login ghcr.io -u $(GH_USER) --password-stdin
+
+api-push: api-login docker-build docker-push
 
 api-rollout-dev:
 	az containerapp update --name aca-gradescale-api-dev --resource-group rg-gradescale-dev --image ghcr.io/$(GH_USER)/grade-scale:latest --revision-suffix rev$$(date +%s)
@@ -88,6 +93,10 @@ db-reset-dev:
 # --- Terraform ---
 
 TF_VARS = TF_VAR_groq_api_key="$(GROQ_KEY)" TF_VAR_github_username="$(GH_USER)" TF_VAR_github_pat="$(GH_PAT)" TF_VAR_db_password="$(DB_PASS)"
+
+infra-setup-backend:
+	@chmod +x infra/backend_setup/init_backend.sh
+	@./infra/backend_setup/init_backend.sh
 
 infra-init-dev:
 	@cd infra/environments/dev && terraform init

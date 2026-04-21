@@ -75,30 +75,21 @@ Avant de déployer, assurez-vous d'avoir les éléments suivants dans votre fich
 *   **`GITHUB_PAT`** : Un *Personal Access Token* GitHub (scopes `write:packages`, `read:packages`, **`repo`**). Le scope `repo` est indispensable pour que Terraform puisse automatiser l'injection du token SWA dans vos secrets GitHub Actions.
 *   **`GROQ_API_KEY`** : Votre clé pour l'inférence IA.
 
-### 1. Initialisation du Remote State
-Pour stocker l'état de l'infrastructure de manière sécurisée et partagée :
-```bash
-chmod +x infra/backend_setup/init_backend.sh
-./infra/backend_setup/init_backend.sh
-```
-
-### 🚀 Déploiement Rapide (Quick Start)
-
-### 1️⃣ Configuration Initiale
 1. Clonez le repository.
 2. Créez votre fichier `.env` à partir du `.env.example`.
-3. Configurez vos variables (Groq API Key, GitHub PAT, etc.).
+3. Configurez vos variables (`AZURE_DB_PASSWORD`, `GROQ_API_KEY`).
 
-### 2️⃣ Publication de l'Image Docker
+### 2️⃣ Initialisation du Remote State
+Créez le stockage Azure pour l'état Terraform :
+```bash
+make infra-setup-backend
+```
+
+### 3️⃣ Publication de l'Image Docker (Initial)
 > [!IMPORTANT]
 > Cette étape doit être effectuée **avant** le déploiement de l'infrastructure pour éviter les erreurs de démarrage des conteneurs.
 
 ```bash
-# Login sur GitHub Container Registry
-export GITHUB_PAT=votre_pat
-echo $GITHUB_PAT | docker login ghcr.io -u votre_username --password-stdin
-
-# Build et Push de l'image API
 make api-push
 ```
 
