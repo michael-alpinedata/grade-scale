@@ -14,6 +14,12 @@ module "security" {
   admin_object_id     = data.azurerm_client_config.current.object_id
 }
 
+resource "azurerm_user_assigned_identity" "api" {
+  name                = "id-gradescale-api-prod"
+  resource_group_name = azurerm_resource_group.prod.name
+  location            = azurerm_resource_group.prod.location
+}
+
 resource "azurerm_key_vault_secret" "database_url" {
   name         = "database-url"
   value        = "postgresql://${module.database.admin_username}:${var.db_password}@${module.database.server_fqdn}:5432/${module.database.db_name}?sslmode=require"
@@ -58,19 +64,20 @@ module "api" {
   rg_name                = azurerm_resource_group.prod.name
   env_id                 = module.environment.id
   app_name               = "aca-gradescale-api-prod"
-  image_name             = "ghcr.io/${var.github_username}/grade-scale:latest"
+  image_name             = "ghcr.io/${lower(var.github_username)}/grade-scale:latest"
   cpu                    = 0.5
   memory                 = "1.0Gi"
   github_username        = var.github_username
   github_pat_secret_id   = azurerm_key_vault_secret.github_pat.versionless_id
   database_url_secret_id = azurerm_key_vault_secret.database_url.versionless_id
   groq_api_key_secret_id = azurerm_key_vault_secret.groq_api_key.versionless_id
+  identity_id            = azurerm_user_assigned_identity.api.id
 }
 
 resource "azurerm_key_vault_access_policy" "api" {
   key_vault_id = module.security.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = module.api.principal_id
+  object_id    = azurerm_user_assigned_identity.api.principal_id
 
   secret_permissions = ["Get", "List"]
 }

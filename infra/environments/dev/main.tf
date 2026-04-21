@@ -88,7 +88,7 @@ module "api" {
   rg_name                = azurerm_resource_group.dev.name
   env_id                 = module.environment.id
   app_name               = "aca-gradescale-api-dev"
-  image_name             = "ghcr.io/${var.github_username}/grade-scale:latest"
+  image_name             = "ghcr.io/${lower(var.github_username)}/grade-scale:latest"
   cpu                    = 0.25
   memory                 = "0.5Gi"
   github_username        = var.github_username
