@@ -163,7 +163,7 @@ server.get('/questions', async () => {
 if (require.main === module || !process.env.VITEST) {
   const start = async () => {
     try {
-      await server.register(cors, { 
+      server.register(cors, { 
         origin: '*', 
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization']
