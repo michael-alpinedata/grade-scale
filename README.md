@@ -32,7 +32,11 @@ Le projet est conçu avec une double approche : **Simplicité locale** et **Scal
 
 *   **Logic (Local)** : Node.js, TypeScript, Fastify, Prisma, PostgreSQL.
 *   **Industrial (Cloud)** : Docker (Multi-stage), Terraform (IaC), Azure Container Apps, Azure Static Web Apps, Vitest (QA).
-*   **Automation (CI/CD)** : GitHub Actions (Pipeline complet de test et déploiement).
+*   **Automation (CI/CD)** : GitHub CLI (gh) installé et connecté (`gh auth login`).
+    *   **Important** : Pour publier sur GHCR, votre jeton doit avoir les droits `packages`. Exécutez :
+        ```bash
+        gh auth refresh -s write:packages,read:packages
+        ```
 *   **Intelligence** : Inférence Groq LPU (Modèles Llama 3.3 70B).
 
 ---
@@ -178,8 +182,8 @@ Le système est conçu pour être **Scalable**, **Sécurisé** et **Observale**.
 ## 🌐 Déploiement & Live Demo
 
 Le projet est désormais industrialisé sur Azure :
-*   **🚀 Interface Frontend** : [https://agreeable-ground-061b10b03.7.azurestaticapps.net/](https://agreeable-ground-061b10b03.7.azurestaticapps.net/)
-*   **⚙️ API Backend** : [https://aca-gradescale-api-dev.kindstone-6c6a1c67.francecentral.azurecontainerapps.io/](https://aca-gradescale-api-dev.kindstone-6c6a1c67.francecentral.azurecontainerapps.io/)
+*   **🚀 Interface Frontend** : [https://icy-desert-090b37903.7.azurestaticapps.net/](https://icy-desert-090b37903.7.azurestaticapps.net/)
+*   **⚙️ API Backend** : [https://aca-gradescale-api-dev.wonderfulmoss-37500a79.francecentral.azurecontainerapps.io/](https://aca-gradescale-api-dev.wonderfulmoss-37500a79.francecentral.azurecontainerapps.io/)
 
 > [!NOTE]
 > Les déploiements sont entièrement automatisés. Chaque `push` sur la branche `master` déclenche une mise à jour transparente de l'application après validation des tests.
