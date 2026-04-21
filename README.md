@@ -109,10 +109,7 @@ L'infrastructure utilise Terraform pour provisionner les services Azure (Postgre
 # Initialisation
 make infra-init-dev
 
-# Injection du token GH pour l'automatisation des secrets (Senior Style)
-export TF_VAR_github_pat=$(gh auth token)
-
-# Déploiement
+# Déploiement (Automatisé : détecte vos crédentials GitHub via 'gh')
 make infra-apply-dev
 ```
 *Note : Grâce au provider GitHub, Terraform injectera automatiquement le jeton `AZURE_SWA_TOKEN` dans votre repo GitHub.*

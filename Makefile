@@ -46,11 +46,19 @@ clean:
 
 # --- Infrastructure (Terraform) ---
 
-# Extract variables from .env
-GROQ_KEY = $(shell grep GROQ_API_KEY .env | cut -d '=' -f2- | tr -d '\" ' )
-GH_USER  = $(shell grep GITHUB_USERNAME .env | cut -d '=' -f2- | tr -d '\" ' )
-GH_PAT   = $(shell grep GITHUB_PAT .env | cut -d '=' -f2- | tr -d '\" ' )
-DB_PASS  = $(shell grep AZURE_DB_PASSWORD .env | cut -d '=' -f2- | tr -d '\" ' )
+# Extract variables from .env with fallback to system/CLI
+GROQ_KEY := $(shell grep GROQ_API_KEY .env 2>/dev/null | cut -d '=' -f2- | tr -d '\" ' )
+GH_USER  := $(shell grep GITHUB_USERNAME .env 2>/dev/null | cut -d '=' -f2- | tr -d '\" ' )
+ifeq ($(GH_USER),)
+  GH_USER := $(shell gh api user -q .login 2>/dev/null)
+endif
+
+GH_PAT   := $(shell grep GITHUB_PAT .env 2>/dev/null | cut -d '=' -f2- | tr -d '\" ' )
+ifeq ($(GH_PAT),)
+  GH_PAT := $(shell gh auth token 2>/dev/null)
+endif
+
+DB_PASS  := $(shell grep AZURE_DB_PASSWORD .env 2>/dev/null | cut -d '=' -f2- | tr -d '\" ' )
 
 # --- Database Management (Azure Dev) ---
 AZ_DB_HOST = $(shell cd infra/environments/dev && terraform output -raw database_host)
