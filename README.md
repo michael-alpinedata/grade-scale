@@ -42,7 +42,13 @@ Le projet est conçu avec une double approche : **Simplicité locale** et **Scal
 C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer au code rapidement.
 
 ### 1. Prérequis
-*   **Node.js (LTS)** & **Docker** (pour le Postgres local).
+*   **Node.js (LTS)** : Recommandé via [nvm](https://github.com/nvm-sh/nvm)
+    ```bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # Relancez votre terminal ou sourcez votre profile, puis :
+    nvm install --lts
+    ```
+*   **Docker** (pour le Postgres local).
 *   **Groq API Key** (Gratuit sur [console.groq.com](https://console.groq.com/)).
 
 ### 2. Configuration & Lancement
