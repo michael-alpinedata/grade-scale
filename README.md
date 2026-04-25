@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo/grade_scale_logo.png" alt="GradeScale Logo" width="200">
+</p>
+
 # 🐧 GradeScale (PoC) : Core Grading Engine pour l'Éducation Assistée par IA
 
 > **Technical Sandbox & Architectural Concept**
