@@ -12,6 +12,7 @@ RUN npm ci
 
 # Génération Prisma (besoin du schéma)
 COPY prisma ./prisma/
+ENV PRISMA_ERD_GENERATOR_DISABLE=true
 RUN npx prisma generate
 
 # Build TypeScript
