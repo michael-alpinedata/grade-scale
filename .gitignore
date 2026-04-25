@@ -11,3 +11,5 @@ dist/
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
+infra/environments/dev/backend.dev.conf
+infra/environments/prod/backend.prod.conf
