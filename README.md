@@ -26,6 +26,8 @@ Le schéma relationnel modélise une évaluation formative granulée, au-delà d
 *   **Rubriques et Critères** : Structuration hiérarchique dynamique pour évaluer les compétences conceptuelles transverses (Ex: Démarche d'investigation, validation des unités).
 *   **Détection des *Misconceptions*** : Le moteur d'analyse sémantique est architecturé pour identifier les biais de raisonnement récurrents chez l'élève, facilitant la génération de feedbacks actionnables.
 
+![Schéma de la base de données](./docs/diagrams/db_schema.png)
+
 ## 🛠️ 4. Stack Technique & Industrialisation
 
 Le projet est conçu avec une double approche : **Simplicité locale** et **Scalabilité industrielle**.
@@ -38,6 +40,35 @@ Le projet est conçu avec une double approche : **Simplicité locale** et **Scal
         gh auth refresh -s write:packages,read:packages
         ```
 *   **Intelligence** : Inférence Groq LPU (Modèles Llama 3.3 70B).
+
+---
+
+## 🏗️ 5. Architecture System Design (Azure Cloud)
+
+Le système est conçu pour être **Scalable**, **Sécurisé** et **Observale**.
+
+### Schéma d'Architecture Locale (Dev)
+![Workflow Développement Local](./docs/diagrams/diagram_local.png)
+
+### Schéma d'Architecture Cible (Cloud / Prod)
+![Architecture Azure Industrialisée](./docs/diagrams/diagram_cloud.png)
+
+### Composants Clés & Rôles
+1.  **Azure Static Web Apps (SWA)** : Hébergement optimisé du frontend, avec certificat SSL et CDN intégrés.
+2.  **Azure Container Apps (ACA)** : Orchestration serverless de l'API Node.js. Gère le scaling et les révisions de déploiement (Blue/Green possible).
+3.  **Managed Identity (MSI)** : Sécurité "Zero Secret" — le backend s'authentifie au Key Vault sans mot de passe.
+4.  **Azure Key Vault** : Coffre-fort numérique centralisant les clés d'API (Groq) et les chaînes de connexion.
+5.  **PostgreSQL Flexible Server** : Base de données managée garantissant la persistance et l'intégrité des données pédagogiques.
+6.  **Log Analytics Workspace** : Centralisation des logs pour le monitoring en temps réel et le debugging.
+
+### Flux de Données (Processus d'Évaluation)
+1.  **Soumission** : L'utilisateur envoie une copie d'élève via le Frontend.
+2.  **Orchestration** : L'ACA reçoit la requête, valide le schéma (Zod) et récupère les secrets dans le Key Vault via MSI.
+3.  **Intelligence** : L'ACA envoie la copie et le barème à **Groq** pour une analyse sémantique ultra-rapide.
+4.  **Persistance** : Le résultat (note, critères, méconceptions) est stocké dans **PostgreSQL** via Prisma.
+5.  **Retour** : Le frontend affiche le feedback pédagogique détaillé.
+
+![Flux d'évaluation IA](./docs/diagrams/diagram_evaluation_flow.png)
 
 ---
 
@@ -70,8 +101,6 @@ C'est la méthode recommandée pour tester le moteur d'évaluation ou contribuer
 4. **Run** :
    *   Backend : `npm run dev` (Port 3000)
    *   Frontend : `cd frontend && npm run dev` (Port 5173)
-
-![Workflow Développement Local](./docs/diagrams/diagram_local.png)
 
 ---
 
@@ -150,32 +179,6 @@ Le `Makefile` est le point d'entrée unique pour toutes les opérations :
 *   `make nuke` : **Destruction propre** (Terraform destroy + nettoyage local).
 *   `make db-migrate-dev` : Applique les migrations Prisma sur la base Cloud.
 *   `make db-reset-dev` : Réinitialise et re-seed la base Azure Dev.
-
----
-
-## 🏗️ Architecture System Design (Azure Cloud)
-
-Le système est conçu pour être **Scalable**, **Sécurisé** et **Observale**.
-
-### Schéma d'Architecture Cible
-![Architecture Azure Industrialisée](./docs/diagrams/diagram_cloud.png)
-
-### Composants Clés & Rôles
-1.  **Azure Static Web Apps (SWA)** : Hébergement optimisé du frontend, avec certificat SSL et CDN intégrés.
-2.  **Azure Container Apps (ACA)** : Orchestration serverless de l'API Node.js. Gère le scaling et les révisions de déploiement (Blue/Green possible).
-3.  **Managed Identity (MSI)** : Sécurité "Zero Secret" — le backend s'authentifie au Key Vault sans mot de passe.
-4.  **Azure Key Vault** : Coffre-fort numérique centralisant les clés d'API (Groq) et les chaînes de connexion.
-5.  **PostgreSQL Flexible Server** : Base de données managée garantissant la persistance et l'intégrité des données pédagogiques.
-6.  **Log Analytics Workspace** : Centralisation des logs pour le monitoring en temps réel et le debugging.
-
-### Flux de Données (Processus d'Évaluation)
-1.  **Soumission** : L'utilisateur envoie une copie d'élève via le Frontend.
-2.  **Orchestration** : L'ACA reçoit la requête, valide le schéma (Zod) et récupère les secrets dans le Key Vault via MSI.
-3.  **Intelligence** : L'ACA envoie la copie et le barème à **Groq** pour une analyse sémantique ultra-rapide.
-4.  **Persistance** : Le résultat (note, critères, méconceptions) est stocké dans **PostgreSQL** via Prisma.
-5.  **Retour** : Le frontend affiche le feedback pédagogique détaillé.
-
-![Flux d'évaluation IA](./docs/diagrams/diagram_evaluation_flow.png)
 
 ---
 
