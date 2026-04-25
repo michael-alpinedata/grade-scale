@@ -12,6 +12,7 @@ help:
 	@echo "  make infra-setup-backend - Create Azure Storage for Terraform state"
 	@echo "  make infra-apply-dev   - Apply Terraform changes to Dev"
 	@echo "  make infra-apply-prod  - Apply Terraform changes to Prod"
+	@echo "  make db-erd            - Generate Database ERD (Entity Relationship Diagram)"
 	@echo "  make nuke              - DESTROY EVERYTHING (Infra + Local artifacts)"
 
 dev:
@@ -90,6 +91,10 @@ db-reset-dev:
 	TRUNCATE TABLE "CriterionEvaluation", "Evaluation", "Submission", "Criterion", "Rubric", "Question", "Subject" CASCADE;
 	EOF
 	DATABASE_URL=$(AZ_DB_URL) npx prisma db seed
+
+db-erd:
+	@echo "📊 Generating Database ERD..."
+	npx -p prisma-erd-generator -p @mermaid-js/mermaid-cli prisma generate --schema ./prisma/schema.prisma --generator erd
 
 # --- Terraform ---
 
