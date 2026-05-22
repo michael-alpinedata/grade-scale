@@ -188,9 +188,12 @@ Le `Makefile` est le point d'entrée unique pour toutes les opérations :
 
 ## 🌐 Déploiement & Live Demo
 
-Le projet est désormais industrialisé sur Azure :
-*   **🚀 Interface Frontend** : [https://icy-desert-090b37903.7.azurestaticapps.net/](https://icy-desert-090b37903.7.azurestaticapps.net/)
-*   **⚙️ API Backend** : [https://aca-gradescale-api-dev.wonderfulmoss-37500a79.francecentral.azurecontainerapps.io/](https://aca-gradescale-api-dev.wonderfulmoss-37500a79.francecentral.azurecontainerapps.io/)
+Le projet est désormais industrialisé sur Azure 
+
+Pour des raisons d'offre gratuite Azure expirée (30 jours), le projet n'est plus déployé sur Azure au moment où vous lisez ces lignes. Le frontend est déployé sur Vercel, la BDD est sur neon.tech et le backend est déployé sur Render.
+
+*   **🚀 Interface Frontend ** : [https://grade-scale-i949cif8v-michaelg-creates-projects.vercel.app/](https://grade-scale-i949cif8v-michaelg-creates-projects.vercel.app/)
+*   **⚙️ API Backend** : [https://grade-scale.onrender.com/](https://grade-scale.onrender.com/)
 
 > [!NOTE]
 > Les déploiements sont entièrement automatisés. Chaque `push` sur la branche `master` déclenche une mise à jour transparente de l'application après validation des tests.
