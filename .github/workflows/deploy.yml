@@ -48,6 +48,7 @@ jobs:
         run: cd frontend && npm run build
 
   deploy-backend:
+    if: false # ⚠️ DESACTIVE TEMPORAIREMENT (Plus de crédits Azure) - Passer à true ou retirer pour réactiver
     runs-on: ubuntu-latest
     needs: [test-backend, check-frontend]
     permissions:
@@ -83,7 +84,6 @@ jobs:
         id: rollout
         run: |
           echo "🚀 Mise à jour de la Container App..."
-          # On retire --no-wait pour s'assurer que la commande attend la création de la révision
           az containerapp update \
             --name aca-gradescale-api-dev \
             --resource-group rg-gradescale-dev \
@@ -91,7 +91,6 @@ jobs:
             --revision-suffix rev${{ github.run_number }}
           
           echo "🔍 Récupération de l'URL de la nouvelle révision..."
-          # On récupère le FQDN de la toute dernière révision
           URL=$(az containerapp show \
             --name aca-gradescale-api-dev \
             --resource-group rg-gradescale-dev \
@@ -107,18 +106,16 @@ jobs:
       - name: Targeted Smoke Test
         run: |
           echo "🩺 Smoke Test sur : ${{ env.NEW_REVISION_URL }}/health"
-          
-          # On attend que la révision soit provisionnée et réponde
           timeout 300s bash -c '
             until curl -sSf "${{ env.NEW_REVISION_URL }}/health"; do
               echo "⏳ Révision en cours de démarrage... (Retry dans 5s)"
               sleep 5
             done
           '
-          
           echo "✅ La nouvelle révision est UP et répond sur son URL dédiée !"
 
   deploy-frontend:
+    if: false # ⚠️ DESACTIVE TEMPORAIREMENT (Plus de crédits Azure) - Passer à true ou retirer pour réactiver
     runs-on: ubuntu-latest
     needs: [test-backend, check-frontend]
     steps:
