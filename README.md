@@ -4,16 +4,15 @@
 
 # 🐧 GradeScale (PoC) : Core Grading Engine pour l'Éducation Assistée par IA
 
-> **Technical Sandbox & Architectural Concept**
-> Ce dépôt présente une preuve de concept (PoC) se concentrant sur le moteur d'évaluation backend. Il explore l'implémentation de modèles de données et structurels permettant à l'IA d'assister les enseignants dans l'analyse granulaire des apprentissages, avec un focus sur la robustesse et la scalabilité.
+> **Moteur d'évaluation IA pour une analyse granulaire des apprentissages.**
+
+![AI Assessment Marking Workflow Overview](docs/AI_Assessment_Marking_Workflow_Overview.png)
 
 ---
 
-## 🎯 1. Contexte Ingénierie & Métier
+## 🎯 1. Contexte & Objectifs
 
-La conception de ce PoC répond à un double objectif :
-1. **Transposition Architecturale** : Démontrer ma capacité à projeter des compétences éprouvées en ingénierie de la donnée (Python / SQL / Data Stack moderne) sur une stack Transactionnelle et Cloud-Native cible (Node.js, TypeScript, PostgreSQL).
-2. **Domain-Driven Design (DDD)** : Intégrer une expertise métier profonde (15 ans d'enseignement de la Physique-Chimie) directement dans la structure de données et la logique métier, assurant que la technologie serve des cas d'usage pédagogiques concrets.
+Ce PoC allie expertise métier (pédagogie) et architecture Cloud-Native (Node.js, TypeScript, PostgreSQL) pour fournir des retours pédagogiques automatisés, fiables et précis.
 
 ## 🏗️ 2. Décisions d'Architecture (System Design)
 
