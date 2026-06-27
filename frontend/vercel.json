@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": true,
   "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
