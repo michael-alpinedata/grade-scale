@@ -1,0 +1,28 @@
+name: Regen Lockfile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Regenerate frontend lockfile
+        run: |
+          cd frontend
+          npm install --package-lock-only
+
+      - name: Commit and push lockfile
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "fix(frontend): regenerate package-lock.json for vitest 5"
+          file_pattern: frontend/package-lock.json
+          
