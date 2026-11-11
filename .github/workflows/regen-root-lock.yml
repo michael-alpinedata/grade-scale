@@ -1,0 +1,27 @@
+name: Regen Root Lockfile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regen-root:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Regenerate root lockfile
+        run: |
+          npm install --package-lock-only
+
+      - name: Commit and push lockfile
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "fix(root): regenerate package-lock.json"
+          file_pattern: package-lock.json
+          
